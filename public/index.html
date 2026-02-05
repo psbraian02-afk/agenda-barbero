@@ -1,0 +1,450 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>The Royal Grooming | Barbería & Spa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --gold: #d4af37;
+  --gold-light: #f1d592;
+  --dark-pure: #0a0a0a;
+  --dark-soft: #1a1a1a;
+  --glass: rgba(15, 15, 15, 0.85);
+  --glass-border: rgba(212, 175, 55, 0.25);
+  --text-primary: #ffffff;
+  --text-secondary: #b5b5b5;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--dark-pure);
+  background-image: 
+    radial-gradient(circle at 0% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+
+.main-wrapper {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.app {
+  width: 100%;
+  max-width: 900px;
+  height: 750px;
+  background: var(--glass);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 25px;
+  opacity: 0;
+  transform: translateY(15px);
+  pointer-events: none;
+  transition: all 0.5s ease-out;
+}
+
+.screen.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+h1.brand {
+  font-family: 'Cinzel', serif;
+  font-size: 48px;
+  font-weight: 700;
+  background: linear-gradient(180deg, #fff 0%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  letter-spacing: 8px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+h2 { 
+  font-family: 'Cinzel', serif;
+  font-weight: 400; 
+  letter-spacing: 3px; 
+  text-transform: uppercase; 
+  font-size: 22px; 
+  color: var(--gold);
+  margin-bottom: 5px;
+}
+
+button {
+  padding: 14px 30px;
+  border-radius: 2px;
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 12px;
+}
+
+button:hover:not(:disabled) {
+  background: var(--gold);
+  color: #000;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+button:disabled {
+  opacity: 0.1;
+  cursor: not-allowed;
+}
+
+input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  padding: 15px;
+  color: white;
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+  font-size: 16px;
+  border-radius: 4px;
+}
+
+.grid { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 12px; 
+  width: 100%; 
+  max-width: 400px; 
+}
+
+#days { max-height: 400px; overflow-y: auto; padding: 5px; }
+#months { grid-template-columns: repeat(2, 1fr); }
+#hoursGrid { grid-template-columns: repeat(3, 1fr); }
+
+.service-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  width: 100%;
+  max-height: 450px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.service-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.service-card:hover { 
+  background: rgba(212, 175, 55, 0.08);
+  border-color: var(--gold);
+}
+
+.service-card h3 { margin: 0; font-size: 16px; font-weight: 500; letter-spacing: 1px; }
+.service-card p { margin: 5px 0 0; color: var(--gold); font-size: 13px; }
+
+.nav { position: absolute; bottom: 30px; width: 100%; text-align: center; }
+.nav-btn { border: none; font-size: 10px; opacity: 0.5; }
+
+.admin-card {
+  background: rgba(255,255,255,0.03);
+  margin-bottom: 12px;
+  padding: 15px;
+  border-left: 3px solid var(--gold);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="main-wrapper">
+  <section class="hero-section">
+    <div class="app">
+
+      <div class="screen active" id="home">
+        <div style="margin-top:40px"><img src="https://cdn-icons-png.flaticon.com/512/2553/2553480.png" style="width:80px; filter:invert(1) brightness(0.8);"></div>
+        <h1 class="brand">Royal Grooming</h1>
+        <p style="letter-spacing: 5px; color: var(--gold); font-size: 11px; margin-top:-10px;">GENTLEMAN'S CHOICE</p>
+        
+        <div style="display:flex; flex-direction:column; gap:15px; width: 260px; margin-top: 20px;">
+          <button onclick="tryGoAgenda()">Reservar Cita</button>
+          <button style="border:none; font-size:10px; opacity:0.4;" onclick="promptAdmin()">Acceso Profesional</button>
+        </div>
+      </div>
+
+      <div class="screen" id="login">
+        <h2>Identificación</h2>
+        <p style="font-size: 12px; color: var(--text-secondary)">Ingresa tu WhatsApp para continuar</p>
+        <input id="phoneInput" placeholder="+598 9x xxx xxx" type="tel">
+        <button onclick="login()">Continuar</button>
+        <div class="nav"><button class="nav-btn" onclick="go('home')">Regresar</button></div>
+      </div>
+
+      <div class="screen" id="month">
+        <h2>Seleccionar Mes</h2>
+        <div class="grid" id="months"></div>
+        <div class="nav"><button class="nav-btn" onclick="go('home')">Cancelar</button></div>
+      </div>
+
+      <div class="screen" id="day">
+        <h2>Día Disponible</h2>
+        <div class="grid" id="days"></div>
+        <div class="nav"><button class="nav-btn" onclick="go('month')">Volver</button></div>
+      </div>
+
+      <div class="screen" id="tattooDetails">
+        <h2>Servicio Principal</h2>
+        <div class="service-options" id="tattooOptions"></div>
+        <div class="nav"><button class="nav-btn" onclick="go('day')">Volver</button></div>
+      </div>
+
+      <div class="screen" id="zoneSelection">
+        <h2>Tratamiento Extra</h2>
+        <div class="service-options" id="zoneOptions"></div>
+        <div class="nav"><button class="nav-btn" onclick="go('tattooDetails')">Volver</button></div>
+      </div>
+
+      <div class="screen" id="hourSelection">
+        <h2>Horarios</h2>
+        <div class="grid" id="hoursGrid"></div>
+        <div class="nav"><button class="nav-btn" onclick="go('zoneSelection')">Volver</button></div>
+      </div>
+
+      <div class="screen" id="imageUploadScreen">
+        <h2>Confirmación</h2>
+        <div style="text-align:center; background: rgba(255,255,255,0.02); padding: 30px; border: 1px dashed var(--gold-light);">
+          <p id="userTattooInfo" style="font-size:16px; color: #fff; letter-spacing:1px; line-height: 1.6"></p>
+          <div style="margin-top: 20px">
+            <button id="confirmBtn" onclick="confirmBooking()">Confirmar mi Turno</button>
+          </div>
+        </div>
+        <div class="nav"><button class="nav-btn" onclick="go('hourSelection')">Cambiar hora</button></div>
+      </div>
+
+      <div class="screen" id="done">
+        <h1 class="brand" style="font-size:28px">¡Reserva Exitosa!</h1>
+        <p style="color:var(--text-secondary); text-align:center; font-size:14px; max-width: 300px">Te hemos agendado. Te esperamos para tu ritual de aseo.</p>
+        <button onclick="go('home')" style="margin-top: 20px">Finalizar</button>
+      </div>
+
+      <div class="screen" id="admin">
+        <h2>Agenda del Salón</h2>
+        <div class="admin-list" id="adminList" style="width:100%; overflow-y:auto; max-height: 500px"></div>
+        <div class="nav"><button class="nav-btn" onclick="go('home')">Salir</button></div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<script>
+const SERVER_URL="/api/bookings"; 
+const DURATIONS={ 
+    "corte": 0.75, "barba": 0.5, "combo": 1.25, "luxury": 1.75 
+};
+
+let selectedMonth, selectedDay, selectedTattoo, selectedHour, selectedZone;
+let bookings=[];
+let userPhone=localStorage.getItem("barber_phone");
+
+function nowUY(){ return new Date(new Date().toLocaleString("en-US", {timeZone: "America/Montevideo"})); }
+function go(id){ 
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); 
+  document.getElementById(id).classList.add("active"); 
+  if(id === 'imageUploadScreen') updateSummary();
+}
+
+function tryGoAgenda(){ userPhone?go("month"):go("login"); }
+function login(){ 
+    const phone=document.getElementById("phoneInput").value.trim(); 
+    if(phone.length<6) return alert("Número inválido"); 
+    localStorage.setItem("barber_phone", phone); 
+    userPhone=phone; 
+    go("month"); 
+}
+
+const year=nowUY().getFullYear();
+const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const monthsEl=document.getElementById("months");
+
+MONTHS.forEach((m,i)=>{ 
+  const b=document.createElement("button"); 
+  b.textContent=m; 
+  if(i<nowUY().getMonth()) b.disabled=true; 
+  b.onclick=()=>{ selectedMonth=i; renderDays(); go('day'); }; 
+  monthsEl.appendChild(b); 
+});
+
+function renderDays(){ 
+  const daysEl=document.getElementById("days");
+  daysEl.innerHTML=""; 
+  const today=nowUY(); 
+  const daysInMonth=new Date(year,selectedMonth+1,0).getDate(); 
+  for(let d=1;d<=daysInMonth;d++){ 
+    const date=new Date(year,selectedMonth,d); 
+    const b=document.createElement("button"); 
+    b.textContent=d; 
+    if(date.setHours(0,0,0,0) < today.setHours(0,0,0,0)) b.disabled=true; 
+    b.onclick=()=>{ selectedDay=d; renderServices(); go("tattooDetails"); }; 
+    daysEl.appendChild(b); 
+  } 
+}
+
+const SERVICES=[ 
+  { id:"corte", label:"Corte Signature", price:"$600", duration:"45 min" }, 
+  { id:"barba", label:"Perfilado de Barba", price:"$400", duration:"30 min" }, 
+  { id:"combo", label:"Corte & Barba", price:"$900", duration:"1h 15m" }, 
+  { id:"luxury", label:"Royal Ritual (Completo)", price:"$1300", duration:"1h 45m" }
+];
+
+const EXTRAS=[ 
+  { id:"facial", label:"Limpieza Facial", price:"+$300" }, 
+  { id:"cejas", label:"Diseño de Cejas", price:"+$150" },
+  { id:"pigmento", label:"Pigmentación", price:"+$250" },
+  { id:"ninguno", label:"Sin Extras", price:"-" }
+];
+
+function renderServices(){ 
+  const container=document.getElementById("tattooOptions"); 
+  container.innerHTML=""; 
+  SERVICES.forEach(s=>{ 
+    const card=document.createElement("div"); 
+    card.className="service-card"; 
+    card.innerHTML=`<div><h3>${s.label}</h3><p>${s.duration}</p></div><strong>${s.price}</strong>`; 
+    card.onclick=()=>{ selectedTattoo=s; renderExtras(); go("zoneSelection"); };
+    container.appendChild(card); 
+  }); 
+}
+
+function renderExtras(){ 
+  const container=document.getElementById("zoneOptions"); 
+  container.innerHTML=""; 
+  EXTRAS.forEach(e=>{ 
+    const card=document.createElement("div"); 
+    card.className="service-card"; 
+    card.innerHTML=`<div><h3>${e.label}</h3></div><strong>${e.price}</strong>`; 
+    card.onclick=()=>{ selectedZone=e; renderHours(); go("hourSelection"); };
+    container.appendChild(card); 
+  }); 
+}
+
+function renderHours(){
+  const grid=document.getElementById("hoursGrid"); grid.innerHTML=""; 
+  const timeUY = nowUY();
+  const isToday = (selectedDay === timeUY.getDate() && selectedMonth === timeUY.getMonth());
+  
+  for(let h=9; h<=20; h++){
+    if(h===13) continue; // Almuerzo
+    let btn=document.createElement("button"); btn.textContent=h+":00";
+    let disabled = (isToday && h <= timeUY.getHours());
+    
+    // Simulación de ocupado (puedes conectar tu API aquí)
+    bookings.forEach(b=>{
+        const bd=b.date.split("-");
+        if(parseInt(bd[2])===selectedDay && parseInt(bd[1])===(selectedMonth+1)){
+            if(h == b.start) disabled = true;
+        }
+    });
+
+    btn.disabled=disabled; 
+    btn.onclick=()=> { selectedHour=h; go('imageUploadScreen'); }; 
+    grid.appendChild(btn);
+  }
+}
+
+function updateSummary() {
+  const info = document.getElementById("userTattooInfo");
+  info.innerHTML = `
+    <span style="color:var(--gold)">SERVICIO:</span> ${selectedTattoo.label}<br>
+    <span style="color:var(--gold)">EXTRA:</span> ${selectedZone.label}<br>
+    <span style="color:var(--gold)">FECHA:</span> ${selectedDay} de ${MONTHS[selectedMonth]}<br>
+    <span style="color:var(--gold)">HORA:</span> ${selectedHour}:00 HS
+  `;
+}
+
+async function confirmBooking(){
+  const booking={ 
+    date:`${year}-${selectedMonth+1}-${selectedDay}`, 
+    start:selectedHour, phone:userPhone, 
+    tattoo:{ size:selectedTattoo.label, place:selectedZone.label } 
+  };
+  
+  // En un entorno real, aquí harías el fetch. Por ahora simulamos éxito:
+  console.log("Reserva enviada:", booking);
+  go("done");
+}
+
+function promptAdmin(){ const pass=prompt("Password de Barbero:"); if(pass==="royal123") { renderAdmin(); go("admin"); } }
+
+function renderAdmin(){ 
+  const list=document.getElementById("adminList"); list.innerHTML="<p style='font-size:10px; opacity:0.5'>Cargando agenda...</p>";
+  // Simulación de datos para visualización
+  setTimeout(()=>{
+      list.innerHTML="";
+      const mockData = [
+          {date: '2026-02-10', start: 10, phone: '099123456', tattoo: {size: 'Corte', place: 'Cejas'}},
+          {date: '2026-02-10', start: 11, phone: '098765432', tattoo: {size: 'Combo', place: 'Sin Extras'}}
+      ];
+      mockData.forEach(res=>{
+        const div=document.createElement("div"); div.className="admin-card";
+        div.innerHTML=`
+            <div>
+              <strong style="color:var(--gold)">${res.start}:00hs</strong> - ${res.tattoo.size}<br>
+              <small>${res.phone}</small>
+            </div>
+            <button style="font-size:8px; padding:5px">Borrar</button>`;
+        list.appendChild(div);
+      });
+  }, 500);
+}
+</script>
+</body>
+</html>
