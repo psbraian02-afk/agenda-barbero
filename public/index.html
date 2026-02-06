@@ -10,7 +10,8 @@
 :root {
   --gold: #c5a059; 
   --gold-light: #e2c286;
-  --navy: #0a1118; /* Azul muy oscuro para contraste pro */
+  --gold-glow: rgba(197, 160, 89, 0.5);
+  --navy: #0a1118; 
   --bg-white: #ffffff;
   --bg-soft: #f4f4f2; 
   --text-dark: #1a1a1a;
@@ -105,7 +106,7 @@ body {
 
 .logo-symbol {
   width: 60%; 
-  filter: invert(1); /* Si el logo es negro, lo hace blanco/oro */
+  filter: invert(1); 
 }
 
 h1.brand {
@@ -159,14 +160,30 @@ button {
   transition: 0.3s;
 }
 
+/* EFECTO GLOW (BRILLO) */
 button:hover:not(:disabled) {
   background: var(--gold);
   border-color: var(--gold);
+  box-shadow: 0 0 20px var(--gold-glow);
+  transform: translateY(-2px);
+}
+
+button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: #ccc;
+    background: #eee;
+    color: #999;
 }
 
 button.secondary {
     background: transparent;
     color: var(--navy);
+}
+
+button.secondary:hover:not(:disabled) {
+    background: rgba(197, 160, 89, 0.1);
+    color: var(--gold);
 }
 
 input {
@@ -194,21 +211,27 @@ input {
 .service-card {
   background: #fff;
   border: 1px solid #eee;
-  padding: 20px 10px;
+  padding: 0; /* Ajustado para la imagen */
   transition: 0.3s;
   text-align: center;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .service-card:hover {
     border-color: var(--gold);
-    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .service-card img {
-  width: 50px;
-  height: 50px;
-  margin-bottom: 10px;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.service-card .info {
+    padding: 10px;
 }
 
 .about-section {
@@ -219,17 +242,6 @@ input {
   flex-direction: column;
   align-items: center;
   text-align: center;
-}
-
-.admin-card {
-  background: #fff;
-  border-left: 4px solid var(--gold);
-  margin-bottom: 10px;
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 </style>
@@ -333,7 +345,7 @@ input {
 </div>
 
 <script>
-const SERVER_URL="/api/bookings"; // Cambiar por tu endpoint real
+const SERVER_URL="/api/bookings";
 const DURATIONS={ "corte": 1, "barba": 0.5, "combo": 1.5, "spa": 2 };
 
 let selectedMonth, selectedDay, selectedService, selectedHour;
@@ -365,7 +377,7 @@ function login(){
     go("month"); 
 }
 
-// Lógica de Calendario
+// Lógica de Calendario (Bloqueo de meses pasados)
 const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const monthsEl=document.getElementById("months");
 MONTHS.forEach((m,i)=>{ 
@@ -376,40 +388,64 @@ MONTHS.forEach((m,i)=>{
   monthsEl.appendChild(b); 
 });
 
+// Lógica de Días (Bloqueo de días pasados)
 function renderDays(){ 
   const daysEl = document.getElementById("days");
   daysEl.innerHTML=""; 
-  const daysInMonth=new Date(2026,selectedMonth+1,0).getDate(); 
+  const currentUY = nowUY();
+  const daysInMonth=new Date(currentUY.getFullYear(),selectedMonth+1,0).getDate(); 
+  
   for(let d=1;d<=daysInMonth;d++){ 
     const b=document.createElement("button"); 
     b.textContent=d; b.className="secondary";
+    
+    // Bloquear si es el mes actual y el día ya pasó
+    if(selectedMonth === currentUY.getMonth() && d < currentUY.getDate()) {
+        b.disabled = true;
+    }
+    
     b.onclick=()=>{ selectedDay=d; renderServices(); go("tattooDetails"); }; 
     daysEl.appendChild(b); 
   } 
 }
 
+// Servicios con Imágenes Profesionales
 const SERVICES=[ 
-  { id:"corte", label:"Corte Signature", price:"$500", icon:"✂️" }, 
-  { id:"barba", label:"Perfilado de Barba", price:"$350", icon:"🧔" }, 
-  { id:"combo", label:"Corte + Barba", price:"$750", icon:"🔥" }, 
-  { id:"spa", label:"Ritual Toalla Caliente", price:"$400", icon:"🛁" }
+  { id:"corte", label:"Corte Signature", price:"$500", img:"https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400" }, 
+  { id:"barba", label:"Perfilado de Barba", price:"$350", img:"https://images.unsplash.com/photo-1621605815841-aa33c5639a09?w=400" }, 
+  { id:"combo", label:"Corte + Barba", price:"$750", img:"https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400" }, 
+  { id:"spa", label:"Limpieza Facial", price:"$400", img:"https://images.unsplash.com/photo-1590540179852-2110a54f813a?w=400" }
 ];
 
 function renderServices(){ 
   const container=document.getElementById("serviceOptions"); container.innerHTML=""; 
   SERVICES.forEach(s=>{ 
     const card=document.createElement("div"); card.className="service-card"; 
-    card.innerHTML=`<div style="font-size:30px">${s.icon}</div><strong>${s.label}</strong><p style="color:var(--gold)">${s.price}</p>`; 
+    card.innerHTML=`
+        <img src="${s.img}" alt="${s.label}">
+        <div class="info">
+            <strong style="font-size:12px">${s.label}</strong>
+            <p style="color:var(--gold); margin:5px 0 0 0; font-size:11px;">${s.price}</p>
+        </div>`; 
     card.onclick=()=>{ selectedService=s; renderHours(); go("hourSelection"); };
     container.appendChild(card); 
   }); 
 }
 
+// Lógica de Horas (Bloqueo de horas pasadas si es HOY)
 function renderHours(){
   const grid=document.getElementById("hoursGrid"); grid.innerHTML=""; 
+  const currentUY = nowUY();
+  
   for(let h=9; h<=20; h++){
     let btn=document.createElement("button"); 
     btn.textContent=h+":00"; btn.className="secondary";
+    
+    // Si es hoy y la hora ya pasó o es la actual, bloquear
+    if(selectedMonth === currentUY.getMonth() && selectedDay === currentUY.getDate()){
+        if(h <= currentUY.getHours()) btn.disabled = true;
+    }
+
     btn.onclick=()=> { selectedHour=h; go('imageUploadScreen'); };
     grid.appendChild(btn);
   }
@@ -422,8 +458,6 @@ function updateSummary() {
 async function confirmBooking(){
   const btn = document.getElementById("confirmBtn");
   btn.disabled = true; btn.textContent = "PROCESANDO...";
-  
-  // Simulación de envío
   setTimeout(() => { go("done"); }, 1500);
 }
 
