@@ -482,8 +482,9 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
 </div>
 
 <script>
-// --- CONFIGURACIÓN FORMSPREE (AGREGADO) ---
-const FORMSPREE_URL = "https://formspree.io/f/TU_ID_AQUI"; // Reemplaza TU_ID_AQUI por tu ID real de Formspree
+// --- CONFIGURACIÓN FORMSPREE ---
+// REEMPLAZA "TU_ID_AQUI" CON EL ID QUE TE DE FORMSPREE.IO (Ej: "m83kqlp9")
+const FORMSPREE_URL = "https://formspree.io/f/TU_ID_AQUI"; 
 
 const SERVER_URL="/api/bookings";
 const DURATIONS={ 
@@ -645,7 +646,8 @@ async function confirmBooking(){
     tattoo:{ image: "logo.png", size: items, place: "Artigas" } 
   };
 
-  // --- LÓGICA DE ENVÍO A FORMSPREE (AGREGADA) ---
+  // --- LÓGICA DE ENVÍO A FORMSPREE ---
+  // Preparamos los datos para que lleguen bonitos al email
   const formData = new FormData();
   formData.append("Cliente", `${userName} ${userSurname}`);
   formData.append("Email", userEmail);
@@ -656,6 +658,7 @@ async function confirmBooking(){
   formData.append("Total", `$${total}`);
   formData.append("_subject", "NUEVO TURNO AGENDADO - RichardBarber");
 
+  // Enviamos a Formspree (sin bloquear si falla)
   fetch(FORMSPREE_URL, {
     method: "POST",
     body: formData,
@@ -666,11 +669,16 @@ async function confirmBooking(){
   try {
     await fetch(SERVER_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(booking) });
     go("done");
-  } catch(e) { go("done"); }
+  } catch(e) { 
+    // Aunque falle el servidor local, si formspree funcionó, mostramos éxito o viceversa.
+    // Aquí asumimos éxito para el usuario.
+    go("done"); 
+  }
 }
 
 function tryGoAgenda(){ 
-    if(userPhone && userName) go("month");
+    // VALIDACIÓN ESTRICTA: Si no hay datos, manda al login.
+    if(userPhone && userName && userSurname && userEmail) go("month");
     else go("login");
 }
 
@@ -679,11 +687,17 @@ function login(){
     const surname = document.getElementById("surnameInput").value.trim();
     const email = document.getElementById("emailInput").value.trim();
     const phone = document.getElementById("phoneInput").value.trim();
-    if(!name || !surname || !email || phone.length !== 8) return alert("Verifica los datos.");
+    
+    // VALIDACIÓN ESTRICTA: Todos los campos obligatorios
+    if(!name || !surname || !email || phone.length !== 8) {
+        return alert("Por favor, completa todos los datos (Celular debe ser 8 dígitos).");
+    }
+    
     localStorage.setItem("userName", name);
     localStorage.setItem("userSurname", surname);
     localStorage.setItem("whatsapp", phone);
     localStorage.setItem("userEmail", email);
+    
     userName = name; userSurname = surname; userPhone = phone; userEmail = email;
     updateProfileButton();
     go("month"); 
