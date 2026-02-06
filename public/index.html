@@ -249,6 +249,12 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
   overflow: hidden;
 }
 
+/* Nueva clase para servicios seleccionados */
+.tattoo-card.selected {
+  border: 2px solid var(--gold);
+  background-color: rgba(179, 142, 68, 0.05);
+}
+
 .tattoo-card:hover, .zone-card:hover {
   border-color: var(--gold);
   box-shadow: 0 0 20px rgba(179, 142, 68, 0.3);
@@ -268,6 +274,15 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
 .tattoo-card:hover img, .zone-card:hover img {
   filter: grayscale(0%) brightness(1.1); 
   transform: scale(1.05);
+}
+
+/* Estilo para el display del total */
+.total-label {
+  font-family: 'Cinzel', serif;
+  color: var(--gold);
+  font-size: 18px;
+  letter-spacing: 2px;
+  margin-top: 10px;
 }
 
 .about-section {
@@ -354,7 +369,7 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
       <div class="screen active" id="home">
         <div class="logo-container">
           <div class="logo-circle">
-            <img src="https://cdn-icons-png.flaticon.com/512/2649/2649232.png" alt="Logo" class="logo-symbol">
+            <img src="logo.png" alt="Logo" class="logo-symbol">
           </div>
           <h1 class="brand">Richard Barber</h1>
           <div class="brand-divider">
@@ -373,9 +388,9 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
         </div>
         
         <div class="social">
-          <a class="social-btn" href="#" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png"></a>
-          <a class="social-btn" href="#" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png"></a>
-          <a class="social-btn" href="#" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png"></a>
+          <a class="social-btn" href="#" target="_blank"><img src="facebook.png"></a>
+          <a class="social-btn" href="#" target="_blank"><img src="instagram.png"></a>
+          <a class="social-btn" href="#" target="_blank"><img src="whatsapp.png"></a>
         </div>
         
         <div id="mapButton" onclick="openMap()" style="cursor:pointer; font-size: 10px; letter-spacing: 3px; color: var(--gold); margin-top:30px; border-bottom: 1px solid var(--gold); padding-bottom: 3px; font-weight: 600;">
@@ -408,6 +423,8 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
       <div class="screen" id="tattooDetails">
         <h2>Servicios</h2>
         <div class="tattoo-options" id="tattooOptions"></div>
+        <div class="total-label" id="totalPriceDisplay">Total: $0</div>
+        <button onclick="confirmSelectedServices()" style="margin-top: 10px;">Continuar</button>
         <div class="nav"><button onclick="go('day')" style="border:none; font-size:11px">Atrás</button></div>
       </div>
 
@@ -420,17 +437,19 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
       <div class="screen" id="hourSelection">
         <h2>Horarios</h2>
         <div id="hoursGrid"></div>
-        <div class="nav"><button onclick="goBackFromHours()" style="border:none; font-size:11px">Atrás</button></div>
+        <div class="nav"><button onclick="go('tattooDetails')" style="border:none; font-size:11px">Atrás</button></div>
       </div>
 
       <div class="screen" id="imageUploadScreen">
-        <h2>Imagen de Referencia</h2>
+        <h2>Resumen de Cita</h2>
         <div style="text-align:center">
           <input type="file" id="userTattooImage" accept="image/*" style="display:none">
-          <button onclick="document.getElementById('userTattooImage').click()" style="font-size:11px">Subir estilo deseado</button>
-          <img id="userTattooPreview" style="display:none; margin: 20px auto; width: 120px; border: 1px solid var(--gold); padding: 5px;">
+          <button onclick="document.getElementById('userTattooImage').click()" style="display:none;">Seleccionar Imagen</button>
+          
+          <img id="userTattooPreview" src="logo.png" style="margin: 20px auto; width: 80px; opacity:0.5; filter:grayscale(1);">
+          
           <p id="userTattooInfo" style="font-size:11px; color: var(--gold); letter-spacing:1px; margin-bottom:20px"></p>
-          <button id="confirmBtn" onclick="confirmBooking()">Confirmar Cita</button>
+          <button id="confirmBtn" onclick="confirmBooking()">Confirmar Cita Ahora</button>
         </div>
         <div class="nav"><button onclick="go('hourSelection')" style="border:none; font-size:11px">Atrás</button></div>
       </div>
@@ -473,7 +492,7 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
 
   <section class="about-section">
     <div class="about-img">
-      <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=1000&auto=format&fit=crop" alt="Richard">
+      <img src="barbero.jpg" alt="Richard">
     </div>
     <div class="about-content">
       <p style="color:var(--gold); letter-spacing:4px; font-size:12px; margin-bottom:10px">Richard Barber</p>
@@ -485,13 +504,27 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
 
 <script>
 const SERVER_URL="/api/bookings";
-// Duraciones ajustadas a peluquería (en fracciones de hora)
 const DURATIONS={ 
-    "corte-clasico": 0.75, "fade-pro": 1, "barba-luxury": 0.5, "combo-full": 1.5, 
-    "color-man": 2, "alisado": 2.5, "tratamiento": 1 
+    "pelo": 0.75, "ceja": 0.5, "barba": 0.5 
 };
 
-let selectedMonth, selectedDay, selectedTattoo, selectedHour, selectedZone;
+// --- SERVICIOS ACTUALIZADOS ---
+const TATTOO_SIZES=[ 
+  { id:"pelo", label:"Corte de Pelo", price: 900, img:"corte.jpg" }, 
+  { id:"ceja", label:"Corte de Ceja", price: 1200, img:"ceja.jpg" }, 
+  { id:"barba", label:"Corte de Barba", price: 500, img:"barba.jpg" }
+];
+
+const BODY_ZONES=[ 
+  { id:"lavado", label:"Lavado Premium", img:"icono_lavado.png" }, 
+  { id:"cejas", label:"Perfilado de Cejas", img:"icono_cejas.png" },
+  { id:"mascarilla", label:"Mascarilla Negra", img:"icono_mascara.png" }, 
+  { id:"sin-adicional", label:"Sin Adicionales", img:"icono_ninguno.png" }
+];
+
+let selectedMonth, selectedDay, selectedHour;
+let selectedTattoo = null; // Se usará para compatibilidad con tu script original de guardado
+let selectedServices = []; // Lista para selección múltiple
 let bookings=[];
 
 let userPhone = localStorage.getItem("whatsapp");
@@ -570,11 +603,11 @@ window.addEventListener('load', () => {
 
 function resetBookingFlow() {
   selectedMonth = null; selectedDay = null; selectedTattoo = null; 
-  selectedHour = null; selectedZone = null;
+  selectedHour = null; selectedServices = [];
   const preview = document.getElementById("userTattooPreview");
-  preview.src = ""; preview.style.display = "none";
+  preview.src = "logo.png";
   const btn = document.getElementById("confirmBtn");
-  btn.disabled = false; btn.textContent = "Confirmar Cita";
+  btn.disabled = false; btn.textContent = "Confirmar Cita Ahora";
   document.getElementById("userTattooImage").value = "";
   fetch(SERVER_URL).then(r=>r.json()).then(data=> { bookings=data; });
   go('home');
@@ -610,8 +643,6 @@ function login(){
     go("month"); 
 }
 
-const year=nowUY().getFullYear();
-const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const monthsEl=document.getElementById("months");
 const daysEl=document.getElementById("days");
 
@@ -637,60 +668,56 @@ function renderDays(){
   } 
 }
 
-// Servicios de barbería
-const TATTOO_SIZES=[ 
-  { id:"corte-clasico", label:"Corte Clásico", price:"$450", img:"https://images.unsplash.com/photo-1621605815841-aa88c82b0ad2?w=300" }, 
-  { id:"fade-pro", label:"Degradado / Fade", price:"$550", img:"https://images.unsplash.com/photo-1599351431247-f132f017054c?w=300" }, 
-  { id:"barba-luxury", label:"Barba & Toalla", price:"$300", img:"https://images.unsplash.com/photo-1590540179852-2110a54f813a?w=300" }, 
-  { id:"combo-full", label:"Combo Completo", price:"$750", img:"https://images.unsplash.com/photo-1512690196236-d41160682827?w=300" }, 
-  { id:"color-man", label:"Color Global", price:"$1200", img:"https://images.unsplash.com/photo-1560066984-138dadb4c035?w=300" },
-  { id:"alisado", label:"Alisado / Perm", price:"$1500", img:"https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=300" }
-];
-
-// Opciones adicionales (Zonas)
-const BODY_ZONES=[ 
-  { id:"lavado", label:"Lavado Premium", img:"https://cdn-icons-png.flaticon.com/512/3100/3100201.png" }, 
-  { id:"cejas", label:"Perfilado de Cejas", img:"https://cdn-icons-png.flaticon.com/512/3241/3241512.png" },
-  { id:"mascarilla", label:"Mascarilla Negra", img:"https://cdn-icons-png.flaticon.com/512/2633/2633849.png" }, 
-  { id:"sin-adicional", label:"Sin Adicionales", img:"https://cdn-icons-png.flaticon.com/512/1828/1828843.png" }
-];
-
 function renderTattooOptions(){ 
   const container=document.getElementById("tattooOptions"); container.innerHTML=""; 
   TATTOO_SIZES.forEach(t=>{ 
-    const card=document.createElement("div"); card.className="tattoo-card"; 
-    card.innerHTML=`<img src="${t.img}" onerror="this.src='https://via.placeholder.com/150'"><div><strong>${t.label}</strong><p style="color:var(--gold); font-size:12px">${t.price}</p></div>`; 
-    card.onclick=()=>selectTattoo(t.id);
+    const card=document.createElement("div"); 
+    card.className="tattoo-card"; 
+    if(selectedServices.find(s => s.id === t.id)) card.classList.add("selected");
+
+    card.innerHTML=`<img src="${t.img}" onerror="this.src='placeholder.png'"><div><strong>${t.label}</strong><p style="color:var(--gold); font-size:12px">$${t.price}</p></div>`; 
+    card.onclick=()=>toggleService(t, card);
     container.appendChild(card); 
   }); 
 }
 
-function selectTattoo(id){ 
-    selectedTattoo=TATTOO_SIZES.find(t=>t.id===id); 
-    renderZones(); go("zoneSelection"); 
+// Nueva función para manejar selección múltiple
+function toggleService(service, cardElement) {
+    const index = selectedServices.findIndex(s => s.id === service.id);
+    if(index > -1) {
+        selectedServices.splice(index, 1);
+        cardElement.classList.remove("selected");
+    } else {
+        selectedServices.push(service);
+        cardElement.classList.add("selected");
+    }
+    updateTotalPrice();
 }
 
-function renderZones(){ 
-  const container=document.getElementById("zoneOptions"); container.innerHTML=""; 
-  BODY_ZONES.forEach(z=>{ 
-    const card=document.createElement("div"); card.className="zone-card"; 
-    card.innerHTML=`<img src="${z.img}" style="object-fit:contain; padding:20px;"><div>${z.label}</div>`; 
-    card.onclick=()=>selectZone(z.id);
-    container.appendChild(card); 
-  }); 
+function updateTotalPrice() {
+    const total = selectedServices.reduce((acc, s) => acc + s.price, 0);
+    document.getElementById("totalPriceDisplay").textContent = `Total: $${total}`;
 }
 
-function selectZone(id){ selectedZone=BODY_ZONES.find(z=>z.id===id); renderHours(); go("hourSelection"); }
-
-function goBackFromHours(){ go("zoneSelection"); }
+function confirmSelectedServices() {
+    if(selectedServices.length === 0) return alert("Por favor, selecciona al menos un servicio.");
+    // Seteamos el label combinado para el script original
+    selectedTattoo = {
+        label: selectedServices.map(s => s.label).join(", "),
+        price: selectedServices.reduce((acc, s) => acc + s.price, 0),
+        id: selectedServices[0].id // Solo para duración
+    };
+    renderHours();
+    go("hourSelection");
+}
 
 function renderHours(){
   const grid=document.getElementById("hoursGrid"); grid.innerHTML=""; 
   const timeUY = nowUY();
   const isToday = (selectedDay === timeUY.getDate() && selectedMonth === timeUY.getMonth());
   
-  for(let h=9; h<=20; h++){ // Horario barbería 9 a 20hs
-    if(h===13) continue; // Descanso
+  for(let h=9; h<=20; h++){ 
+    if(h===13) continue; 
     let btn=document.createElement("button"); btn.textContent=h+":00";
     let disabled = (isToday && h <= timeUY.getHours());
     if(!disabled){
@@ -707,47 +734,42 @@ function renderHours(){
   }
 }
 
-function selectHour(hour){ selectedHour=hour; go('imageUploadScreen'); }
+function selectHour(hour){ 
+    selectedHour=hour; 
+    go('imageUploadScreen'); 
+}
 
 function updateSummary() {
   const info = document.getElementById("userTattooInfo");
-  if(selectedTattoo && selectedZone && selectedHour) {
-    info.innerHTML = `${selectedTattoo.label} | ${selectedZone.label} | ${selectedHour}:00hs`;
+  if(selectedTattoo && selectedHour) {
+    info.innerHTML = `<strong>Servicios:</strong> ${selectedTattoo.label}<br>
+                      <strong>Horario:</strong> ${selectedHour}:00hs<br>
+                      <strong>Precio Total:</strong> $${selectedTattoo.price}`;
   }
 }
-
-document.getElementById("userTattooImage").addEventListener("change",e=>{
-  const file=e.target.files[0], preview=document.getElementById("userTattooPreview");
-  if(file){ 
-    const reader=new FileReader(); 
-    reader.onload=e2=>{ 
-      preview.src=e2.target.result; 
-      preview.style.display="block"; 
-      updateSummary();
-    }; 
-    reader.readAsDataURL(file); 
-  }
-});
 
 async function confirmBooking(){
   const btn = document.getElementById("confirmBtn");
   btn.disabled = true;
   btn.textContent = "AGENDANDO...";
 
-  const duration=DURATIONS[selectedTattoo.id] || 1;
+  const duration = selectedServices.reduce((acc, s) => acc + (DURATIONS[s.id] || 0.5), 0);
   const booking={ 
     date:`${year}-${selectedMonth+1}-${selectedDay}`, 
     start:selectedHour, end:selectedHour+duration, 
     phone:userPhone, name: userName, surname: userSurname, email: userEmail,
-    tattoo:{ image: document.getElementById("userTattooPreview").src, size:selectedTattoo.label, place:selectedZone.label } 
+    tattoo:{ 
+        image: document.getElementById("userTattooPreview").src, 
+        size:selectedTattoo.label, 
+        place: "N/A"
+    } 
   };
 
   try {
     const res=await fetch(SERVER_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(booking) });
     if(res.ok) { go("done"); } else { throw new Error(); }
   } catch(e) { 
-    // Fallback para demo
-    go("done");
+    go("done"); // Fallback para visualización
   }
 }
 
@@ -775,7 +797,6 @@ function openAdmin(){
 }
 
 function expandImage(src) {
-    if(!src || src.includes('undefined')) return;
     const lb = document.getElementById("lightbox");
     const lbImg = document.getElementById("lightboxImg");
     lbImg.src = src;
@@ -788,13 +809,13 @@ function renderAdmin(){
   sorted.forEach(res=>{
     const div=document.createElement("div"); 
     div.className="admin-card";
-    const imgUrl = (res.tattoo && res.tattoo.image) ? res.tattoo.image : 'https://via.placeholder.com/150?text=Corte';
+    const imgUrl = (res.tattoo && res.tattoo.image) ? res.tattoo.image : 'logo.png';
     div.innerHTML = `
         <img src="${imgUrl}" class="admin-img-preview" onclick="expandImage('${imgUrl}')">
         <div class="admin-info">
             <strong>${res.date} @ ${res.start}:00hs</strong><br>
             ${res.name} ${res.surname}<br>
-            <span style="font-size:9px;">${res.tattoo.size} + ${res.tattoo.place}</span>
+            <span style="font-size:9px;">${res.tattoo.size}</span>
         </div>
         <div class="admin-actions" style="display:flex; flex-direction:column; gap:5px">
             <button class="btn-whatsapp" onclick="window.open('https://wa.me/598${res.phone}', '_blank')">WA</button>
