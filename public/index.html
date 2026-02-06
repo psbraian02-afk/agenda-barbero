@@ -2,20 +2,20 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<title>The Royal Grooming | Barbería & Spa</title>
+<title>The Barber Shop | Barbería Profesional</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@200;300;400;600&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --gold: #d4af37;
-  --gold-light: #f1d592;
-  --dark-pure: #0a0a0a;
-  --dark-soft: #1a1a1a;
-  --glass: rgba(15, 15, 15, 0.85);
-  --glass-border: rgba(212, 175, 55, 0.25);
-  --text-primary: #ffffff;
-  --text-secondary: #b5b5b5;
+  --gold: #c5a059; 
+  --gold-light: #e2c286;
+  --navy: #0a1118; /* Azul muy oscuro para contraste pro */
+  --bg-white: #ffffff;
+  --bg-soft: #f4f4f2; 
+  --text-dark: #1a1a1a;
+  --text-muted: #666666;
+  --border: rgba(197, 160, 89, 0.3);
 }
 
 * { box-sizing: border-box; }
@@ -24,17 +24,14 @@ html { scroll-behavior: smooth; }
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--dark-pure);
-  background-image: 
-    radial-gradient(circle at 0% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
-  color: var(--text-primary);
+  background-color: var(--bg-soft);
+  color: var(--text-dark);
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--gold); }
 
 .main-wrapper {
   width: 100%;
@@ -46,19 +43,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 20px 10px;
 }
 
 .app {
   width: 100%;
-  max-width: 900px;
-  height: 750px;
-  background: var(--glass);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+  max-width: 1000px;
+  min-height: 750px;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.1);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -68,35 +62,76 @@ body {
 .screen {
   position: absolute;
   inset: 0;
-  padding: 50px 40px;
+  padding: 30px 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 25px;
   opacity: 0;
-  transform: translateY(15px);
+  transform: translateY(10px);
   pointer-events: none;
-  transition: all 0.5s ease-out;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--bg-white); 
 }
 
 .screen.active {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  position: relative; 
+}
+
+/* --- ESTILO BARBERÍA --- */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.logo-circle {
+  width: 90px;
+  height: 90px;
+  border: 3px double var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+  background: var(--navy);
+}
+
+.logo-symbol {
+  width: 60%; 
+  filter: invert(1); /* Si el logo es negro, lo hace blanco/oro */
 }
 
 h1.brand {
   font-family: 'Cinzel', serif;
-  font-size: 48px;
+  font-size: clamp(22px, 5vw, 32px);
   font-weight: 700;
-  background: linear-gradient(180deg, #fff 0%, var(--gold) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--navy);
   margin: 0;
-  letter-spacing: 8px;
-  text-align: center;
+  letter-spacing: 4px;
   text-transform: uppercase;
+  text-align: center;
+}
+
+.brand-divider {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 5px;
+}
+
+.line {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  flex: 1;
 }
 
 h2 { 
@@ -104,63 +139,51 @@ h2 {
   font-weight: 400; 
   letter-spacing: 3px; 
   text-transform: uppercase; 
-  font-size: 22px; 
+  font-size: 18px; 
   color: var(--gold);
-  margin-bottom: 5px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
 }
 
 button {
-  padding: 14px 30px;
-  border-radius: 2px;
-  border: 1px solid var(--gold);
-  background: transparent;
-  color: var(--gold);
+  padding: 15px 30px;
+  border: 1px solid var(--navy);
+  background: var(--navy);
+  color: white;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 2px;
+  font-size: 11px;
   cursor: pointer;
   transition: 0.3s;
-  font-size: 12px;
 }
 
 button:hover:not(:disabled) {
   background: var(--gold);
-  color: #000;
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  border-color: var(--gold);
 }
 
-button:disabled {
-  opacity: 0.1;
-  cursor: not-allowed;
+button.secondary {
+    background: transparent;
+    color: var(--navy);
 }
 
 input {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--glass-border);
+  background: transparent;
+  border: 1px solid #eee;
   padding: 15px;
-  color: white;
+  color: var(--text-dark);
   width: 100%;
-  max-width: 300px;
+  max-width: 280px;
   text-align: center;
-  font-size: 16px;
-  border-radius: 4px;
+  font-size: 14px;
 }
 
-.grid { 
-  display: grid; 
-  grid-template-columns: repeat(4, 1fr); 
-  gap: 12px; 
-  width: 100%; 
-  max-width: 400px; 
-}
-
-#days { max-height: 400px; overflow-y: auto; padding: 5px; }
-#months { grid-template-columns: repeat(2, 1fr); }
-#hoursGrid { grid-template-columns: repeat(3, 1fr); }
-
+/* --- GRID SERVICIOS --- */
 .service-options {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 15px;
   width: 100%;
   max-height: 450px;
@@ -169,38 +192,46 @@ input {
 }
 
 .service-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 20px 10px;
   transition: 0.3s;
+  text-align: center;
+  cursor: pointer;
 }
 
-.service-card:hover { 
-  background: rgba(212, 175, 55, 0.08);
-  border-color: var(--gold);
+.service-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-3px);
 }
 
-.service-card h3 { margin: 0; font-size: 16px; font-weight: 500; letter-spacing: 1px; }
-.service-card p { margin: 5px 0 0; color: var(--gold); font-size: 13px; }
+.service-card img {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+}
 
-.nav { position: absolute; bottom: 30px; width: 100%; text-align: center; }
-.nav-btn { border: none; font-size: 10px; opacity: 0.5; }
+.about-section {
+  padding: 80px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 
 .admin-card {
-  background: rgba(255,255,255,0.03);
-  margin-bottom: 12px;
+  background: #fff;
+  border-left: 4px solid var(--gold);
+  margin-bottom: 10px;
   padding: 15px;
-  border-left: 3px solid var(--gold);
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 </head>
 <body>
@@ -210,240 +241,197 @@ input {
     <div class="app">
 
       <div class="screen active" id="home">
-        <div style="margin-top:40px"><img src="https://cdn-icons-png.flaticon.com/512/2553/2553480.png" style="width:80px; filter:invert(1) brightness(0.8);"></div>
-        <h1 class="brand">Royal Grooming</h1>
-        <p style="letter-spacing: 5px; color: var(--gold); font-size: 11px; margin-top:-10px;">GENTLEMAN'S CHOICE</p>
+        <div class="logo-container">
+          <div class="logo-circle">
+            <img src="https://cdn-icons-png.flaticon.com/512/483/483488.png" alt="Logo" class="logo-symbol">
+          </div>
+          <h1 class="brand">Classic Blade</h1>
+          <div class="brand-divider">
+            <div class="line"></div>
+            <p style="letter-spacing: 3px; color: var(--text-muted); font-size: 9px; font-weight: 400; text-transform: uppercase; margin: 0;">Master Barber Studio</p>
+            <div class="line"></div>
+          </div>
+        </div>
+        
+        <p style="letter-spacing: 2px; color: var(--gold); font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: -10px;">Excelencia en cada corte</p>
         
         <div style="display:flex; flex-direction:column; gap:15px; width: 260px; margin-top: 20px;">
-          <button onclick="tryGoAgenda()">Reservar Cita</button>
-          <button style="border:none; font-size:10px; opacity:0.4;" onclick="promptAdmin()">Acceso Profesional</button>
+          <button onclick="tryGoAgenda()">Reservar Turno</button>
+          <button class="secondary" style="border:none; font-size:10px; opacity:0.6; cursor:pointer;" onclick="promptAdmin()">Panel Barbero</button>
+        </div>
+        
+        <div class="social">
+            <a class="social-btn" href="#"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" width="20"></a>
+            <a class="social-btn" href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="20"></a>
         </div>
       </div>
 
       <div class="screen" id="login">
-        <h2>Identificación</h2>
-        <p style="font-size: 12px; color: var(--text-secondary)">Ingresa tu WhatsApp para continuar</p>
-        <input id="phoneInput" placeholder="+598 9x xxx xxx" type="tel">
-        <button onclick="login()">Continuar</button>
-        <div class="nav"><button class="nav-btn" onclick="go('home')">Regresar</button></div>
+        <h2>Tus Datos</h2>
+        <input id="nameInput" type="text" placeholder="NOMBRE">
+        <input id="phoneInput" type="tel" placeholder="WHATSAPP">
+        <button onclick="login()" style="margin-top:20px; width:280px">Continuar</button>
+        <div class="nav"><button onclick="go('home')" class="secondary" style="font-size:11px">Cancelar</button></div>
       </div>
 
       <div class="screen" id="month">
-        <h2>Seleccionar Mes</h2>
-        <div class="grid" id="months"></div>
-        <div class="nav"><button class="nav-btn" onclick="go('home')">Cancelar</button></div>
+        <h2>Selecciona el Mes</h2>
+        <div class="grid" id="months" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;"></div>
+        <div class="nav"><button onclick="go('home')" class="secondary">Inicio</button></div>
       </div>
 
       <div class="screen" id="day">
-        <h2>Día Disponible</h2>
-        <div class="grid" id="days"></div>
-        <div class="nav"><button class="nav-btn" onclick="go('month')">Volver</button></div>
+        <h2>Día del Turno</h2>
+        <div id="days" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;"></div>
+        <div class="nav"><button onclick="go('month')" class="secondary">Atrás</button></div>
       </div>
 
       <div class="screen" id="tattooDetails">
-        <h2>Servicio Principal</h2>
-        <div class="service-options" id="tattooOptions"></div>
-        <div class="nav"><button class="nav-btn" onclick="go('day')">Volver</button></div>
-      </div>
-
-      <div class="screen" id="zoneSelection">
-        <h2>Tratamiento Extra</h2>
-        <div class="service-options" id="zoneOptions"></div>
-        <div class="nav"><button class="nav-btn" onclick="go('tattooDetails')">Volver</button></div>
+        <h2>Elige el Servicio</h2>
+        <div class="service-options" id="serviceOptions"></div>
+        <div class="nav"><button onclick="go('day')" class="secondary">Atrás</button></div>
       </div>
 
       <div class="screen" id="hourSelection">
-        <h2>Horarios</h2>
-        <div class="grid" id="hoursGrid"></div>
-        <div class="nav"><button class="nav-btn" onclick="go('zoneSelection')">Volver</button></div>
+        <h2>Hora Disponible</h2>
+        <div id="hoursGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;"></div>
+        <div class="nav"><button onclick="go('tattooDetails')" class="secondary">Atrás</button></div>
       </div>
 
       <div class="screen" id="imageUploadScreen">
         <h2>Confirmación</h2>
-        <div style="text-align:center; background: rgba(255,255,255,0.02); padding: 30px; border: 1px dashed var(--gold-light);">
-          <p id="userTattooInfo" style="font-size:16px; color: #fff; letter-spacing:1px; line-height: 1.6"></p>
-          <div style="margin-top: 20px">
-            <button id="confirmBtn" onclick="confirmBooking()">Confirmar mi Turno</button>
-          </div>
+        <div style="text-align:center; padding: 20px; background: #f9f9f9; border: 1px solid #eee;">
+          <p id="userTattooInfo" style="font-weight: 600; color: var(--navy);"></p>
+          <p style="font-size: 12px; color: var(--text-muted);">Te enviaremos un recordatorio por WhatsApp.</p>
         </div>
-        <div class="nav"><button class="nav-btn" onclick="go('hourSelection')">Cambiar hora</button></div>
+        <button id="confirmBtn" onclick="confirmBooking()" style="width: 280px;">Confirmar Turno</button>
+        <div class="nav"><button onclick="go('hourSelection')" class="secondary">Atrás</button></div>
       </div>
 
       <div class="screen" id="done">
-        <h1 class="brand" style="font-size:28px">¡Reserva Exitosa!</h1>
-        <p style="color:var(--text-secondary); text-align:center; font-size:14px; max-width: 300px">Te hemos agendado. Te esperamos para tu ritual de aseo.</p>
-        <button onclick="go('home')" style="margin-top: 20px">Finalizar</button>
+        <h1 class="brand" style="font-size:30px">¡Turno Agendado!</h1>
+        <p style="color:var(--text-muted); text-align:center; font-size:14px;">Te esperamos en la fecha y hora seleccionada.</p>
+        <button onclick="resetBookingFlow()">Finalizar</button>
       </div>
 
       <div class="screen" id="admin">
-        <h2>Agenda del Salón</h2>
-        <div class="admin-list" id="adminList" style="width:100%; overflow-y:auto; max-height: 500px"></div>
-        <div class="nav"><button class="nav-btn" onclick="go('home')">Salir</button></div>
+        <h2>Agenda de Clientes</h2>
+        <div class="admin-list" id="adminList" style="width:100%; overflow-y:auto; flex:1"></div>
+        <button onclick="go('home')" class="secondary">Cerrar Panel</button>
       </div>
 
     </div>
   </section>
+
+  <section class="about-section">
+      <h2 style="color: var(--navy)">Nuestra Barbería</h2>
+      <p style="max-width: 600px; color: var(--text-muted); line-height: 1.8;">
+        En <strong>Classic Blade</strong>, combinamos las técnicas tradicionales de barbería con las tendencias más actuales. 
+        Más que un corte, ofrecemos una experiencia de cuidado personal premium.
+      </p>
+  </section>
 </div>
 
 <script>
-const SERVER_URL="/api/bookings"; 
-const DURATIONS={ 
-    "corte": 0.75, "barba": 0.5, "combo": 1.25, "luxury": 1.75 
-};
+const SERVER_URL="/api/bookings"; // Cambiar por tu endpoint real
+const DURATIONS={ "corte": 1, "barba": 0.5, "combo": 1.5, "spa": 2 };
 
-let selectedMonth, selectedDay, selectedTattoo, selectedHour, selectedZone;
+let selectedMonth, selectedDay, selectedService, selectedHour;
 let bookings=[];
-let userPhone=localStorage.getItem("barber_phone");
+
+let userPhone = localStorage.getItem("whatsapp");
+let userName = localStorage.getItem("userName");
 
 function nowUY(){ return new Date(new Date().toLocaleString("en-US", {timeZone: "America/Montevideo"})); }
-function go(id){ 
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); 
+
+function go(id) { 
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active")); 
   document.getElementById(id).classList.add("active"); 
-  if(id === 'imageUploadScreen') updateSummary();
+  if (id === 'imageUploadScreen') updateSummary(); 
 }
 
-function tryGoAgenda(){ userPhone?go("month"):go("login"); }
+function tryGoAgenda(){ 
+    if(userPhone && userName) go("month");
+    else go("login");
+}
+
 function login(){ 
-    const phone=document.getElementById("phoneInput").value.trim(); 
-    if(phone.length<6) return alert("Número inválido"); 
-    localStorage.setItem("barber_phone", phone); 
-    userPhone=phone; 
+    const name = document.getElementById("nameInput").value.trim();
+    const phone = document.getElementById("phoneInput").value.trim();
+    if(!name || phone.length < 8) return alert("Completa tus datos.");
+    localStorage.setItem("userName", name);
+    localStorage.setItem("whatsapp", phone);
+    userName = name; userPhone = phone;
     go("month"); 
 }
 
-const year=nowUY().getFullYear();
+// Lógica de Calendario
 const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const monthsEl=document.getElementById("months");
-
 MONTHS.forEach((m,i)=>{ 
   const b=document.createElement("button"); 
-  b.textContent=m; 
-  if(i<nowUY().getMonth()) b.disabled=true; 
+  b.textContent=m; b.className="secondary";
+  if(i < nowUY().getMonth()) b.disabled=true; 
   b.onclick=()=>{ selectedMonth=i; renderDays(); go('day'); }; 
   monthsEl.appendChild(b); 
 });
 
 function renderDays(){ 
-  const daysEl=document.getElementById("days");
+  const daysEl = document.getElementById("days");
   daysEl.innerHTML=""; 
-  const today=nowUY(); 
-  const daysInMonth=new Date(year,selectedMonth+1,0).getDate(); 
+  const daysInMonth=new Date(2026,selectedMonth+1,0).getDate(); 
   for(let d=1;d<=daysInMonth;d++){ 
-    const date=new Date(year,selectedMonth,d); 
     const b=document.createElement("button"); 
-    b.textContent=d; 
-    if(date.setHours(0,0,0,0) < today.setHours(0,0,0,0)) b.disabled=true; 
+    b.textContent=d; b.className="secondary";
     b.onclick=()=>{ selectedDay=d; renderServices(); go("tattooDetails"); }; 
     daysEl.appendChild(b); 
   } 
 }
 
 const SERVICES=[ 
-  { id:"corte", label:"Corte Signature", price:"$600", duration:"45 min" }, 
-  { id:"barba", label:"Perfilado de Barba", price:"$400", duration:"30 min" }, 
-  { id:"combo", label:"Corte & Barba", price:"$900", duration:"1h 15m" }, 
-  { id:"luxury", label:"Royal Ritual (Completo)", price:"$1300", duration:"1h 45m" }
-];
-
-const EXTRAS=[ 
-  { id:"facial", label:"Limpieza Facial", price:"+$300" }, 
-  { id:"cejas", label:"Diseño de Cejas", price:"+$150" },
-  { id:"pigmento", label:"Pigmentación", price:"+$250" },
-  { id:"ninguno", label:"Sin Extras", price:"-" }
+  { id:"corte", label:"Corte Signature", price:"$500", icon:"✂️" }, 
+  { id:"barba", label:"Perfilado de Barba", price:"$350", icon:"🧔" }, 
+  { id:"combo", label:"Corte + Barba", price:"$750", icon:"🔥" }, 
+  { id:"spa", label:"Ritual Toalla Caliente", price:"$400", icon:"🛁" }
 ];
 
 function renderServices(){ 
-  const container=document.getElementById("tattooOptions"); 
-  container.innerHTML=""; 
+  const container=document.getElementById("serviceOptions"); container.innerHTML=""; 
   SERVICES.forEach(s=>{ 
-    const card=document.createElement("div"); 
-    card.className="service-card"; 
-    card.innerHTML=`<div><h3>${s.label}</h3><p>${s.duration}</p></div><strong>${s.price}</strong>`; 
-    card.onclick=()=>{ selectedTattoo=s; renderExtras(); go("zoneSelection"); };
-    container.appendChild(card); 
-  }); 
-}
-
-function renderExtras(){ 
-  const container=document.getElementById("zoneOptions"); 
-  container.innerHTML=""; 
-  EXTRAS.forEach(e=>{ 
-    const card=document.createElement("div"); 
-    card.className="service-card"; 
-    card.innerHTML=`<div><h3>${e.label}</h3></div><strong>${e.price}</strong>`; 
-    card.onclick=()=>{ selectedZone=e; renderHours(); go("hourSelection"); };
+    const card=document.createElement("div"); card.className="service-card"; 
+    card.innerHTML=`<div style="font-size:30px">${s.icon}</div><strong>${s.label}</strong><p style="color:var(--gold)">${s.price}</p>`; 
+    card.onclick=()=>{ selectedService=s; renderHours(); go("hourSelection"); };
     container.appendChild(card); 
   }); 
 }
 
 function renderHours(){
   const grid=document.getElementById("hoursGrid"); grid.innerHTML=""; 
-  const timeUY = nowUY();
-  const isToday = (selectedDay === timeUY.getDate() && selectedMonth === timeUY.getMonth());
-  
   for(let h=9; h<=20; h++){
-    if(h===13) continue; // Almuerzo
-    let btn=document.createElement("button"); btn.textContent=h+":00";
-    let disabled = (isToday && h <= timeUY.getHours());
-    
-    // Simulación de ocupado (puedes conectar tu API aquí)
-    bookings.forEach(b=>{
-        const bd=b.date.split("-");
-        if(parseInt(bd[2])===selectedDay && parseInt(bd[1])===(selectedMonth+1)){
-            if(h == b.start) disabled = true;
-        }
-    });
-
-    btn.disabled=disabled; 
-    btn.onclick=()=> { selectedHour=h; go('imageUploadScreen'); }; 
+    let btn=document.createElement("button"); 
+    btn.textContent=h+":00"; btn.className="secondary";
+    btn.onclick=()=> { selectedHour=h; go('imageUploadScreen'); };
     grid.appendChild(btn);
   }
 }
 
 function updateSummary() {
-  const info = document.getElementById("userTattooInfo");
-  info.innerHTML = `
-    <span style="color:var(--gold)">SERVICIO:</span> ${selectedTattoo.label}<br>
-    <span style="color:var(--gold)">EXTRA:</span> ${selectedZone.label}<br>
-    <span style="color:var(--gold)">FECHA:</span> ${selectedDay} de ${MONTHS[selectedMonth]}<br>
-    <span style="color:var(--gold)">HORA:</span> ${selectedHour}:00 HS
-  `;
+  document.getElementById("userTattooInfo").innerHTML = `SERVICIO: ${selectedService.label}<br>FECHA: ${selectedDay}/${selectedMonth+1}<br>HORA: ${selectedHour}:00hs`;
 }
 
 async function confirmBooking(){
-  const booking={ 
-    date:`${year}-${selectedMonth+1}-${selectedDay}`, 
-    start:selectedHour, phone:userPhone, 
-    tattoo:{ size:selectedTattoo.label, place:selectedZone.label } 
-  };
+  const btn = document.getElementById("confirmBtn");
+  btn.disabled = true; btn.textContent = "PROCESANDO...";
   
-  // En un entorno real, aquí harías el fetch. Por ahora simulamos éxito:
-  console.log("Reserva enviada:", booking);
-  go("done");
+  // Simulación de envío
+  setTimeout(() => { go("done"); }, 1500);
 }
 
-function promptAdmin(){ const pass=prompt("Password de Barbero:"); if(pass==="royal123") { renderAdmin(); go("admin"); } }
+function resetBookingFlow() { location.reload(); }
 
-function renderAdmin(){ 
-  const list=document.getElementById("adminList"); list.innerHTML="<p style='font-size:10px; opacity:0.5'>Cargando agenda...</p>";
-  // Simulación de datos para visualización
-  setTimeout(()=>{
-      list.innerHTML="";
-      const mockData = [
-          {date: '2026-02-10', start: 10, phone: '099123456', tattoo: {size: 'Corte', place: 'Cejas'}},
-          {date: '2026-02-10', start: 11, phone: '098765432', tattoo: {size: 'Combo', place: 'Sin Extras'}}
-      ];
-      mockData.forEach(res=>{
-        const div=document.createElement("div"); div.className="admin-card";
-        div.innerHTML=`
-            <div>
-              <strong style="color:var(--gold)">${res.start}:00hs</strong> - ${res.tattoo.size}<br>
-              <small>${res.phone}</small>
-            </div>
-            <button style="font-size:8px; padding:5px">Borrar</button>`;
-        list.appendChild(div);
-      });
-  }, 500);
+function promptAdmin(){
+    const pass = prompt("Contraseña de acceso:");
+    if(pass === "admin123") go("admin");
 }
 </script>
 </body>
