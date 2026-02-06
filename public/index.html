@@ -347,7 +347,10 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
         
         <div style="display:flex; flex-direction:column; gap:10px; width: 260px; margin-top: 20px;">
           <button onclick="tryGoAgenda()">Agendar Turno</button>
-          <button id="btnProfile" style="display:none; font-size:9px;" onclick="go('login')">Mi Perfil / Editar Datos</button>
+          
+          <button id="btnEditProfile" style="display:none; font-size:10px; border-color: var(--text-muted); color: var(--text-muted);" onclick="go('login')">Editar Mis Datos</button>
+          
+          <button id="btnProfile" style="display:none; font-size:9px;" onclick="go('login')">Mi Perfil / Ver Datos</button>
           <button style="border:none; font-size:10px; opacity:0.5; letter-spacing:2px; cursor:pointer;" onclick="promptAdmin()">Acceso Barbero</button>
         </div>
         
@@ -363,12 +366,12 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
       </div>
 
       <div class="screen" id="login">
-        <h2>Mis Datos</h2>
+        <h2 id="loginTitle">Mis Datos</h2>
         <input id="nameInput" type="text" placeholder="NOMBRE">
         <input id="surnameInput" type="text" placeholder="APELLIDO">
         <input id="emailInput" type="email" placeholder="CORREO ELECTRÓNICO">
         <input id="phoneInput" type="tel" placeholder="TELÉFONO (8 NÚMEROS)" maxlength="8">
-        <button onclick="login()" style="margin-top:20px">Guardar y Continuar</button>
+        <button id="loginBtn" onclick="login()" style="margin-top:20px">Guardar y Continuar</button>
         <div class="nav"><button onclick="go('home')" style="border:none; font-size:11px">Cancelar</button></div>
       </div>
 
@@ -454,7 +457,6 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
 
 <script>
 const SERVER_URL="/api/bookings";
-// Duraciones ajustadas a tiempos de barbería (en horas)
 const DURATIONS={ 
     "corte": 1, "barba": 0.5, "corte-barba": 1.5, "perfilado": 0.5, 
     "color": 2, "tratamiento": 1, "completo": 2.5 
@@ -470,9 +472,14 @@ let userEmail = localStorage.getItem("userEmail");
 
 function nowUY(){ return new Date(new Date().toLocaleString("en-US", {timeZone: "America/Montevideo"})); }
 
+// ACTUALIZACIÓN DE LOS BOTONES DEL MENÚ
 function updateProfileButton(){
     const btn = document.getElementById("btnProfile");
-    if(userPhone && userName) btn.style.display = "block";
+    const btnEdit = document.getElementById("btnEditProfile");
+    if(userPhone && userName){
+      btn.style.display = "block";
+      btnEdit.style.display = "block"; // Se muestra el botón de editar datos
+    }
 }
 
 function go(id, isBack = false) { 
@@ -480,11 +487,19 @@ function go(id, isBack = false) {
   const target = document.getElementById(id);
   if (target) {
     target.classList.add("active");
-    if(id === 'login' && userPhone){
-        document.getElementById("nameInput").value = userName;
-        document.getElementById("surnameInput").value = userSurname;
-        document.getElementById("phoneInput").value = userPhone;
-        document.getElementById("emailInput").value = userEmail || "";
+    if(id === 'login'){
+        // Si ya hay datos, cambiamos los textos de la pantalla login para que parezca una edición
+        if(userPhone){
+          document.getElementById("loginTitle").textContent = "Actualizar Mis Datos";
+          document.getElementById("loginBtn").textContent = "Guardar Cambios";
+          document.getElementById("nameInput").value = userName;
+          document.getElementById("surnameInput").value = userSurname;
+          document.getElementById("phoneInput").value = userPhone;
+          document.getElementById("emailInput").value = userEmail || "";
+        } else {
+          document.getElementById("loginTitle").textContent = "Mis Datos";
+          document.getElementById("loginBtn").textContent = "Guardar y Continuar";
+        }
     }
   }
   if (id === 'imageUploadScreen') updateSummary(); 
@@ -544,8 +559,10 @@ function login(){
     userName = name; userSurname = surname; userPhone = phone; userEmail = email;
     
     updateProfileButton();
-    alert("Datos guardados correctamente.");
-    go("month"); 
+    alert("Datos actualizados correctamente.");
+    
+    // Si el usuario estaba editando desde el home, regresa al home. Si venía del flujo de agenda, va a meses.
+    go("home"); 
 }
 
 const year=nowUY().getFullYear();
@@ -575,7 +592,6 @@ function renderDays(){
   } 
 }
 
-// Servicios de barbería
 const TATTOO_SIZES=[ 
   { id:"corte", label:"Corte de Cabello", price:"$450", img:"corte.png" }, 
   { id:"barba", label:"Servicio de Barba", price:"$350", img:"barba.png" }, 
@@ -632,8 +648,8 @@ function renderHours(){
   const timeUY = nowUY();
   const isToday = (selectedDay === timeUY.getDate() && selectedMonth === timeUY.getMonth());
   
-  for(let h=9; h<=20; h++){ // Horario barbería 9 a 20hs
-    if(h===13) continue; // Hora de almuerzo
+  for(let h=9; h<=20; h++){ 
+    if(h===13) continue; 
     let btn=document.createElement("button"); btn.textContent=h+":00";
     let disabled = (isToday && h <= timeUY.getHours());
     if(!disabled){
