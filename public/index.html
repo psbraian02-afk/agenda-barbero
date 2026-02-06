@@ -160,7 +160,6 @@ button {
   transition: 0.3s;
 }
 
-/* EFECTO GLOW (BRILLO) */
 button:hover:not(:disabled) {
   background: var(--gold);
   border-color: var(--gold);
@@ -179,11 +178,6 @@ button:disabled {
 button.secondary {
     background: transparent;
     color: var(--navy);
-}
-
-button.secondary:hover:not(:disabled) {
-    background: rgba(197, 160, 89, 0.1);
-    color: var(--gold);
 }
 
 input {
@@ -211,16 +205,11 @@ input {
 .service-card {
   background: #fff;
   border: 1px solid #eee;
-  padding: 0; /* Ajustado para la imagen */
+  padding: 0;
   transition: 0.3s;
   text-align: center;
   cursor: pointer;
   overflow: hidden;
-}
-
-.service-card:hover {
-    border-color: var(--gold);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .service-card img {
@@ -230,9 +219,25 @@ input {
   display: block;
 }
 
-.service-card .info {
-    padding: 10px;
+.service-card .info { padding: 10px; }
+
+/* --- ADMIN PANEL ESTILOS --- */
+.admin-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-left: 4px solid var(--gold);
+  margin-bottom: 12px;
+  padding: 15px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
+
+.admin-info-client { text-align: left; }
+.admin-info-client strong { color: var(--navy); font-size: 14px; }
+.admin-info-client p { margin: 2px 0; font-size: 12px; color: var(--text-muted); }
 
 .about-section {
   padding: 80px 20px;
@@ -264,14 +269,11 @@ input {
             <div class="line"></div>
           </div>
         </div>
-        
         <p style="letter-spacing: 2px; color: var(--gold); font-size: 12px; font-weight: 600; text-transform: uppercase; margin-top: -10px;">Excelencia en cada corte</p>
-        
         <div style="display:flex; flex-direction:column; gap:15px; width: 260px; margin-top: 20px;">
           <button onclick="tryGoAgenda()">Reservar Turno</button>
           <button class="secondary" style="border:none; font-size:10px; opacity:0.6; cursor:pointer;" onclick="promptAdmin()">Panel Barbero</button>
         </div>
-        
         <div class="social">
             <a class="social-btn" href="#"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" width="20"></a>
             <a class="social-btn" href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="20"></a>
@@ -327,9 +329,9 @@ input {
       </div>
 
       <div class="screen" id="admin">
-        <h2>Agenda de Clientes</h2>
-        <div class="admin-list" id="adminList" style="width:100%; overflow-y:auto; flex:1"></div>
-        <button onclick="go('home')" class="secondary">Cerrar Panel</button>
+        <h2 style="margin-bottom:10px">Próximas Citas</h2>
+        <div id="adminList" style="width:100%; overflow-y:auto; flex:1; padding:5px;"></div>
+        <button onclick="go('home')" class="secondary" style="margin-top:10px">Cerrar Panel</button>
       </div>
 
     </div>
@@ -339,17 +341,16 @@ input {
       <h2 style="color: var(--navy)">Nuestra Barbería</h2>
       <p style="max-width: 600px; color: var(--text-muted); line-height: 1.8;">
         En <strong>Classic Blade</strong>, combinamos las técnicas tradicionales de barbería con las tendencias más actuales. 
-        Más que un corte, ofrecemos una experiencia de cuidado personal premium.
       </p>
   </section>
 </div>
 
 <script>
-const SERVER_URL="/api/bookings";
+const SERVER_URL="/api/bookings"; 
 const DURATIONS={ "corte": 1, "barba": 0.5, "combo": 1.5, "spa": 2 };
 
 let selectedMonth, selectedDay, selectedService, selectedHour;
-let bookings=[];
+let bookings=[]; // Aquí se guardarán las citas locales y de la API
 
 let userPhone = localStorage.getItem("whatsapp");
 let userName = localStorage.getItem("userName");
@@ -360,6 +361,7 @@ function go(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active")); 
   document.getElementById(id).classList.add("active"); 
   if (id === 'imageUploadScreen') updateSummary(); 
+  if (id === 'admin') renderAdmin();
 }
 
 function tryGoAgenda(){ 
@@ -377,7 +379,6 @@ function login(){
     go("month"); 
 }
 
-// Lógica de Calendario (Bloqueo de meses pasados)
 const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const monthsEl=document.getElementById("months");
 MONTHS.forEach((m,i)=>{ 
@@ -388,28 +389,20 @@ MONTHS.forEach((m,i)=>{
   monthsEl.appendChild(b); 
 });
 
-// Lógica de Días (Bloqueo de días pasados)
 function renderDays(){ 
   const daysEl = document.getElementById("days");
   daysEl.innerHTML=""; 
   const currentUY = nowUY();
   const daysInMonth=new Date(currentUY.getFullYear(),selectedMonth+1,0).getDate(); 
-  
   for(let d=1;d<=daysInMonth;d++){ 
     const b=document.createElement("button"); 
     b.textContent=d; b.className="secondary";
-    
-    // Bloquear si es el mes actual y el día ya pasó
-    if(selectedMonth === currentUY.getMonth() && d < currentUY.getDate()) {
-        b.disabled = true;
-    }
-    
+    if(selectedMonth === currentUY.getMonth() && d < currentUY.getDate()) b.disabled = true;
     b.onclick=()=>{ selectedDay=d; renderServices(); go("tattooDetails"); }; 
     daysEl.appendChild(b); 
   } 
 }
 
-// Servicios con Imágenes Profesionales
 const SERVICES=[ 
   { id:"corte", label:"Corte Signature", price:"$500", img:"https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400" }, 
   { id:"barba", label:"Perfilado de Barba", price:"$350", img:"https://images.unsplash.com/photo-1621605815841-aa33c5639a09?w=400" }, 
@@ -421,31 +414,21 @@ function renderServices(){
   const container=document.getElementById("serviceOptions"); container.innerHTML=""; 
   SERVICES.forEach(s=>{ 
     const card=document.createElement("div"); card.className="service-card"; 
-    card.innerHTML=`
-        <img src="${s.img}" alt="${s.label}">
-        <div class="info">
-            <strong style="font-size:12px">${s.label}</strong>
-            <p style="color:var(--gold); margin:5px 0 0 0; font-size:11px;">${s.price}</p>
-        </div>`; 
+    card.innerHTML=`<img src="${s.img}"><div class="info"><strong>${s.label}</strong><p style="color:var(--gold)">${s.price}</p></div>`; 
     card.onclick=()=>{ selectedService=s; renderHours(); go("hourSelection"); };
     container.appendChild(card); 
   }); 
 }
 
-// Lógica de Horas (Bloqueo de horas pasadas si es HOY)
 function renderHours(){
   const grid=document.getElementById("hoursGrid"); grid.innerHTML=""; 
   const currentUY = nowUY();
-  
   for(let h=9; h<=20; h++){
     let btn=document.createElement("button"); 
     btn.textContent=h+":00"; btn.className="secondary";
-    
-    // Si es hoy y la hora ya pasó o es la actual, bloquear
     if(selectedMonth === currentUY.getMonth() && selectedDay === currentUY.getDate()){
         if(h <= currentUY.getHours()) btn.disabled = true;
     }
-
     btn.onclick=()=> { selectedHour=h; go('imageUploadScreen'); };
     grid.appendChild(btn);
   }
@@ -458,7 +441,45 @@ function updateSummary() {
 async function confirmBooking(){
   const btn = document.getElementById("confirmBtn");
   btn.disabled = true; btn.textContent = "PROCESANDO...";
+  
+  // Guardamos la cita en el array local para que aparezca en el panel admin
+  const newBooking = {
+      name: userName,
+      phone: userPhone,
+      service: selectedService.label,
+      price: selectedService.price,
+      date: `${selectedDay}/${selectedMonth+1}`,
+      hour: `${selectedHour}:00hs`
+  };
+  bookings.push(newBooking);
+  
   setTimeout(() => { go("done"); }, 1500);
+}
+
+function renderAdmin() {
+    const list = document.getElementById("adminList");
+    list.innerHTML = "";
+    if(bookings.length === 0) {
+        list.innerHTML = "<p style='color:#999; font-size:12px; margin-top:20px;'>No hay citas agendadas aún.</p>";
+        return;
+    }
+    bookings.forEach((b, index) => {
+        const card = document.createElement("div");
+        card.className = "admin-card";
+        card.innerHTML = `
+            <div class="admin-info-client">
+                <strong>${b.name}</strong>
+                <p>📞 ${b.phone}</p>
+                <p>✂️ ${b.service} (${b.price})</p>
+                <p>📅 ${b.date} - 🕒 ${b.hour}</p>
+            </div>
+            <button onclick="window.open('https://wa.me/${b.phone.replace(/\D/g,'')}')" 
+                    style="padding:10px; font-size:10px; background:#25D366; border:none;">
+                WhatsApp
+            </button>
+        `;
+        list.appendChild(card);
+    });
 }
 
 function resetBookingFlow() { location.reload(); }
