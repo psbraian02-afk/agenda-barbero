@@ -227,92 +227,88 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
   font-size: 11px;
 }
 
-.tattoo-options, .body-zones {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+/* --- ESTILO SERVICIOS CARRITO --- */
+.tattoo-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   width: 100%;
-  max-width: 480px; 
-  max-height: 450px;
+  max-width: 450px;
+  max-height: 400px;
   overflow-y: auto;
-  padding: 15px;
+  padding: 10px;
 }
 
-.tattoo-card, .zone-card {
+.tattoo-card {
+  display: flex;
+  align-items: center;
   background: #fff;
-  border: 1px solid #f0f0f0;
-  padding: 12px;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  text-align: center;
+  border: 1px solid rgba(0,0,0,0.03);
+  padding: 15px;
+  transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
-  overflow: hidden;
+  gap: 20px;
+  text-align: left;
 }
 
-/* Estilo Carrito/Selección */
-.tattoo-card.in-cart {
-  border: 2px solid var(--gold);
-  background: #fffdf9;
+.tattoo-card img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  filter: grayscale(100%);
+  transition: 0.3s;
 }
+
+.tattoo-card div { flex: 1; }
+
+.tattoo-card strong {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.tattoo-card.in-cart {
+  border: 1px solid var(--gold);
+  background: #fdfaf3;
+  transform: translateX(5px);
+}
+
+.tattoo-card.in-cart img { filter: grayscale(0%); }
 
 .tattoo-card.in-cart::after {
   content: '✓';
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 10px;
+  right: 10px;
   background: var(--gold);
   color: white;
   font-size: 10px;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.tattoo-card:hover, .zone-card:hover {
-  border-color: var(--gold);
-  box-shadow: 0 0 20px rgba(179, 142, 68, 0.3);
-  transform: translateY(-3px);
-}
-
-.tattoo-card img, .zone-card img {
-  width: 100%; 
-  height: 130px; 
-  object-fit: cover; 
-  margin-bottom: 10px;
-  filter: grayscale(100%) brightness(0.8); 
-  transition: all 0.5s ease;
-  background: #fafafa;
-}
-
-.tattoo-card:hover img, .zone-card:hover img {
-  filter: grayscale(0%) brightness(1.1); 
-  transform: scale(1.05);
-}
-
 .cart-footer {
     width: 100%;
-    max-width: 480px;
+    max-width: 450px;
     padding: 20px;
     border-top: 1px solid var(--border);
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 15px;
     background: #fff;
 }
 
 #cartTotalText {
     font-family: 'Cinzel', serif;
-    font-size: 16px;
-    color: var(--text-dark);
-}
-
-#cartTotalText span {
-    color: var(--gold);
-    font-weight: 700;
+    font-size: 14px;
 }
 
 .about-section {
@@ -437,8 +433,8 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
         <h2>Servicios</h2>
         <div class="tattoo-options" id="tattooOptions"></div>
         <div class="cart-footer">
-            <div id="cartTotalText">TOTAL CARRITO: <span id="currentTotal">$0</span></div>
-            <button id="btnContinueCart" onclick="confirmCart()">Continuar Reserva</button>
+            <div id="cartTotalText">TOTAL: <span id="currentTotal">$0</span></div>
+            <button id="btnContinueCart" onclick="confirmCart()">Continuar</button>
         </div>
         <div class="nav"><button onclick="go('day')" style="border:none; font-size:11px">Atrás</button></div>
       </div>
@@ -486,6 +482,9 @@ input:focus { outline: none; border-bottom-color: var(--gold); }
 </div>
 
 <script>
+// --- CONFIGURACIÓN FORMSPREE (AGREGADO) ---
+const FORMSPREE_URL = "https://formspree.io/f/TU_ID_AQUI"; // Reemplaza TU_ID_AQUI por tu ID real de Formspree
+
 const SERVER_URL="/api/bookings";
 const DURATIONS={ 
     "corte-pelo": 0.75, "corte-ceja": 0.25, "corte-barba": 0.5 
@@ -502,7 +501,7 @@ const BODY_ZONES=[
 ];
 
 let selectedMonth, selectedDay, selectedHour, selectedZone;
-let cart = []; // Carrito de servicios
+let cart = []; 
 let bookings=[];
 
 const year = new Date().getFullYear();
@@ -550,14 +549,14 @@ function renderDays(){
 
 function renderTattooOptions(){ 
   const container=document.getElementById("tattooOptions"); container.innerHTML=""; 
-  cart = []; // Reiniciar carrito al entrar
+  cart = []; 
   updateCartDisplay();
 
   TATTOO_SIZES.forEach(t=>{ 
     const card=document.createElement("div"); 
     card.className="tattoo-card"; 
     card.id = "item-" + t.id;
-    card.innerHTML=`<img src="${t.img}" onerror="this.src='logo.png'"><div><strong>${t.label}</strong><p style="color:var(--gold); font-size:12px">$${t.price}</p></div>`; 
+    card.innerHTML=`<img src="${t.img}" onerror="this.src='logo.png'"><div><strong>${t.label}</strong><p style="color:var(--gold); font-size:12px; margin:5px 0 0 0;">$${t.price}</p></div>`; 
     card.onclick=()=>toggleCart(t);
     container.appendChild(card); 
   }); 
@@ -615,9 +614,7 @@ function renderHours(){
 function go(id, isBack = false) { 
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active")); 
   const target = document.getElementById(id);
-  if (target) {
-    target.classList.add("active");
-  }
+  if (target) { target.classList.add("active"); }
   if (id === 'imageUploadScreen') updateSummary(); 
 }
 
@@ -636,13 +633,36 @@ async function confirmBooking(){
   const btn = document.getElementById("confirmBtn");
   btn.disabled = true;
   btn.textContent = "AGENDANDO...";
+  
+  const total = cart.reduce((sum, s) => sum + s.price, 0);
+  const items = cart.map(s => s.label).join(", ");
   const totalDur = cart.reduce((sum, s) => sum + (DURATIONS[s.id] || 0.5), 0);
+  
   const booking={ 
     date:`${year}-${selectedMonth+1}-${selectedDay}`, 
     start:selectedHour, end:selectedHour+totalDur, 
     phone:userPhone, name: userName, surname: userSurname, email: userEmail,
-    tattoo:{ image: "logo.png", size: cart.map(s=>s.label).join(", "), place: "Artigas" } 
+    tattoo:{ image: "logo.png", size: items, place: "Artigas" } 
   };
+
+  // --- LÓGICA DE ENVÍO A FORMSPREE (AGREGADA) ---
+  const formData = new FormData();
+  formData.append("Cliente", `${userName} ${userSurname}`);
+  formData.append("Email", userEmail);
+  formData.append("Telefono", userPhone);
+  formData.append("Fecha", `${selectedDay}/${selectedMonth+1}/${year}`);
+  formData.append("Hora", `${selectedHour}:00hs`);
+  formData.append("Servicios", items);
+  formData.append("Total", `$${total}`);
+  formData.append("_subject", "NUEVO TURNO AGENDADO - RichardBarber");
+
+  fetch(FORMSPREE_URL, {
+    method: "POST",
+    body: formData,
+    headers: { 'Accept': 'application/json' }
+  }).catch(err => console.log("Error enviando a Formspree", err));
+
+  // --- LOGICA ORIGINAL DE TU SERVIDOR ---
   try {
     await fetch(SERVER_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(booking) });
     go("done");
